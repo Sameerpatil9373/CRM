@@ -1,50 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Sun, Moon, Bell, User } from "lucide-react";
-import SearchBar from "./SearchBar";
 
 export default function Navbar() {
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(() => localStorage.getItem("darkMode") === "true");
 
-  // Load saved mode
   useEffect(() => {
-    const savedMode = localStorage.getItem("darkMode");
-    if (savedMode === "true") {
-      setDark(true);
-      document.documentElement.classList.add("dark");
-    }
-  }, []);
-
-  // Toggle mode
-  const toggleDark = () => {
-    const newMode = !dark;
-    setDark(newMode);
-
-    if (newMode) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("darkMode", "true");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("darkMode", "false");
-    }
-  };
+    document.documentElement.classList.toggle("dark", dark);
+    localStorage.setItem("darkMode", String(dark));
+  }, [dark]);
 
   return (
     <div className="bg-white dark:bg-gray-800 shadow px-6 py-3 flex justify-between items-center">
-      
-      <h1 className="text-xl font-bold text-gray-800 dark:text-white">
-        CRM Dashboard
-      </h1>
-      <SearchBar />
-
+      <h1 className="text-xl font-bold text-gray-800 dark:text-white">CRM Dashboard</h1>
 
       <div className="flex items-center gap-4">
         <Bell className="text-gray-600 dark:text-gray-300" />
 
         <button
-          onClick={toggleDark}
+          onClick={() => setDark((prev) => !prev)}
           className="p-2 rounded bg-gray-200 dark:bg-gray-700"
+          aria-label="Toggle dark mode"
         >
-          {dark ? <Sun className="text-yellow-400" /> : <Moon />}
+          {dark ? <Sun className="text-yellow-400" /> : <Moon className="text-gray-700 dark:text-gray-200" />}
         </button>
 
         <div className="flex items-center gap-2">

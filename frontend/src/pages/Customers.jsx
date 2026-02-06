@@ -1,39 +1,47 @@
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "../config/api";
 
+const initialForm = {
+  name: "",
+  email: "",
+  category: "Coaching",
+};
+
 export default function Customers() {
   const [customers, setCustomers] = useState([]);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [form, setForm] = useState(initialForm);
   const limit = 5;
 
-  useEffect(() => {
-    const fetchCustomers = async () => {
-      setLoading(true);
-      setError("");
+  const fetchCustomers = async () => {
+    setLoading(true);
+    setError("");
 
-      try {
-        const res = await fetch(
-          `${API_BASE_URL}/customers?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`
-        );
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/customers?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`
+      );
 
-        if (!res.ok) {
-          throw new Error("Failed to fetch customers");
-        }
-
-        const data = await res.json();
-        setCustomers(data.customers || []);
-        setTotal(data.total || 0);
-      } catch (err) {
-        setError(err.message || "Unable to load customers.");
-      } finally {
-        setLoading(false);
+      if (!res.ok) {
+        throw new Error("Failed to fetch customers");
       }
-    };
 
+      const data = await res.json();
+      setCustomers(data.customers || []);
+      setTotal(data.total || 0);
+    } catch (err) {
+      setError(err.message || "Unable to load customers.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchCustomers();
   }, [search, page]);
 
@@ -41,15 +49,77 @@ export default function Customers() {
     setPage(1);
   }, [search]);
 
+  const handleAddCustomer = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError("");
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/customers`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to add customer");
+      }
+
+      setForm(initialForm);
+      setPage(1);
+      await fetchCustomers();
+    } catch (err) {
+      setError(err.message || "Unable to add customer.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const totalPages = Math.max(1, Math.ceil(total / limit));
 
   return (
     <div className="p-6 space-y-4">
       <h1 className="text-2xl font-bold">Customers</h1>
 
+      <form
+        onSubmit={handleAddCustomer}
+        className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-white dark:bg-gray-800 p-4 rounded shadow"
+      >
+        <input
+          placeholder="Customer Name"
+          className="border p-2 rounded dark:bg-gray-700 dark:border-gray-600"
+          value={form.name}
+          onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+          required
+        />
+        <input
+          type="email"
+          placeholder="Customer Email"
+          className="border p-2 rounded dark:bg-gray-700 dark:border-gray-600"
+          value={form.email}
+          onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+          required
+        />
+        <select
+          className="border p-2 rounded dark:bg-gray-700 dark:border-gray-600"
+          value={form.category}
+          onChange={(e) => setForm((prev) => ({ ...prev, category: e.target.value }))}
+        >
+          <option>Coaching</option>
+          <option>Real Estate</option>
+          <option>Fitness</option>
+        </select>
+        <button
+          className="bg-blue-600 text-white rounded px-4 py-2 disabled:opacity-50"
+          disabled={submitting}
+        >
+          {submitting ? "Adding..." : "Add Customer"}
+        </button>
+      </form>
+
       <input
         placeholder="Search customer..."
-        className="border p-2 w-full md:w-72 rounded"
+        className="border p-2 w-full md:w-72 rounded dark:bg-gray-700 dark:border-gray-600"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
