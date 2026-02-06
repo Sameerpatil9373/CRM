@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Activity, UserPlus, Edit, Trash2 } from "lucide-react";
+import { API_BASE_URL } from "../config/api";
 
 export default function ActivityLogs() {
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/activity")
+    fetch(`${API_BASE_URL}/activity`)
       .then((res) => res.json())
       .then((data) => setLogs(data));
   }, []);

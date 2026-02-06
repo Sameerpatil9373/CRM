@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Sun, Moon, Bell, User } from "lucide-react";
+import SearchBar from "./SearchBar";
 
 export default function Navbar() {
   const [dark, setDark] = useState(false);
@@ -33,6 +34,8 @@ export default function Navbar() {
       <h1 className="text-xl font-bold text-gray-800 dark:text-white">
         CRM Dashboard
       </h1>
+      <SearchBar />
+
 
       <div className="flex items-center gap-4">
         <Bell className="text-gray-600 dark:text-gray-300" />

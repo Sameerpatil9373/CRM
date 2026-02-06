@@ -8,6 +8,7 @@ import reminderRoutes from "./routes/reminderRoutes.js";
 import staffRoutes from "./routes/staffRoutes.js";
 import activityRoutes from "./routes/activityRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
+import searchRoutes from "./routes/searchRoutes.js";
 dotenv.config();
 connectDB();
 
@@ -25,7 +26,7 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/reminders", reminderRoutes);
 app.use("/api/staff", staffRoutes);
 app.use("/api/activity", activityRoutes);
-
+app.use("/api/search", searchRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
 const PORT = process.env.PORT || 5000;
