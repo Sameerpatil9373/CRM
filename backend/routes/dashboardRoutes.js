@@ -2,6 +2,7 @@ import express from "express";
 import Customer from "../models/Customer.js";
 import Payment from "../models/Payment.js";
 import Reminder from "../models/Reminder.js";
+import Deal from "../models/Deal.js";
 
 const router = express.Router();
 
@@ -127,5 +128,44 @@ router.get("/overview", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
+// DEAL ANALYTICS
+router.get("/deal-stats", async (req, res) => {
+  try {
+    const deals = await Deal.find();
+
+    let total = 0;
+    let won = 0;
+    let lost = 0;
+
+    const stageMap = {
+      Lead: 0,
+      Contacted: 0,
+      Proposal: 0,
+      Won: 0,
+      Lost: 0
+    };
+
+    deals.forEach(d => {
+      total += d.value || 0;
+
+      if (d.stage === "Won") won += d.value || 0;
+      if (d.stage === "Lost") lost += d.value || 0;
+
+      stageMap[d.stage] += d.value || 0;
+    });
+
+    res.json({
+      total,
+      won,
+      lost,
+      stageMap
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 export default router;

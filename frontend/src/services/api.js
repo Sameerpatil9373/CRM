@@ -24,3 +24,17 @@ export const deleteStaff = (id) => API.delete(`/staff/${id}`);
 export const getActivities = () => API.get("/activities");
 export const addActivity = (data) => API.post("/activities", data);
 export const deleteActivity = (id) => API.delete(`/activities/${id}`);
+
+export const getDeals = () => API.get("/deals");
+export const addDeal = (data) => API.post("/deals", data);
+export const updateDealStage = (id, stage) =>
+  API.put(`/deals/${id}`, { stage });
+
+export const getDealStats = () =>
+  API.get("/dashboard/deal-stats");
+
+export const updateDeal = (id,data)=>
+  API.put(`/deals/${id}`,data);
+
+export const deleteDeal = (id)=>
+  API.delete(`/deals/${id}`);

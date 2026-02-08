@@ -9,13 +9,23 @@ export default function ActivityLogs() {
   useEffect(() => {
     fetch(`${API_BASE_URL}/activity`)
       .then((res) => res.json())
-      .then((data) => setLogs(data));
+      .then((data) => setLogs(data))
+      .catch((err) => console.error("Failed to fetch logs", err));
   }, []);
 
-  const getIcon = (message) => {
-    if (message.includes("Added")) return <UserPlus className="text-green-500" />;
-    if (message.includes("Updated")) return <Edit className="text-blue-500" />;
-    if (message.includes("Deleted")) return <Trash2 className="text-red-500" />;
+  // ✅ SAFE ICON LOGIC
+  const getIcon = (log) => {
+    const text = log.message || log.action || "";
+
+    if (text.includes("Added") || text.includes("Created"))
+      return <UserPlus className="text-green-500" />;
+
+    if (text.includes("Updated") || text.includes("Moved"))
+      return <Edit className="text-blue-500" />;
+
+    if (text.includes("Deleted"))
+      return <Trash2 className="text-red-500" />;
+
     return <Activity className="text-gray-500" />;
   };
 
@@ -29,28 +39,33 @@ export default function ActivityLogs() {
       <h1 className="text-2xl font-bold mb-6">Activity Logs</h1>
 
       <div className="space-y-4">
-        {logs.map((log) => (
-          <motion.div
-            key={log._id}
-            className="flex items-start gap-4 bg-white dark:bg-gray-800 p-4 rounded-lg shadow"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {/* Icon */}
-            <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded-full">
-              {getIcon(log.message)}
-            </div>
+        {logs.map((log) => {
+          const text = log.message || log.action || "Unknown activity";
+          const time = log.date || log.createdAt;
 
-            {/* Content */}
-            <div>
-              <p className="font-medium">{log.message}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                {new Date(log.date).toLocaleString()}
-              </p>
-            </div>
-          </motion.div>
-        ))}
+          return (
+            <motion.div
+              key={log._id}
+              className="flex items-start gap-4 bg-white dark:bg-gray-800 p-4 rounded-lg shadow"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {/* Icon */}
+              <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded-full">
+                {getIcon(log)}
+              </div>
+
+              {/* Content */}
+              <div>
+                <p className="font-medium">{text}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {time ? new Date(time).toLocaleString() : ""}
+                </p>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
       {logs.length === 0 && (
