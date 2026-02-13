@@ -167,5 +167,36 @@ router.get("/deal-stats", async (req, res) => {
   }
 });
 
+// KPI WIDGET DATA
+router.get("/kpis", async (req, res) => {
+  try {
+
+    const totalCustomers = await Customer.countDocuments();
+    const totalDeals = await Deal.countDocuments();
+
+    const deals = await Deal.find();
+
+    let pipelineValue = 0;
+    let wonRevenue = 0;
+
+    deals.forEach(d => {
+      pipelineValue += d.value || 0;
+      if (d.stage === "Won") {
+        wonRevenue += d.value || 0;
+      }
+    });
+
+    res.json({
+      totalCustomers,
+      totalDeals,
+      pipelineValue,
+      wonRevenue
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 export default router;

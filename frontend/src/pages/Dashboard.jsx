@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getDealStats } from "../services/api";
+import { API_BASE_URL } from "../config/api";
 
 import {
   BarChart,
@@ -12,15 +12,28 @@ import {
 
 export default function Dashboard() {
 
+  const [kpis, setKpis] = useState(null);
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
-    getDealStats().then(res => setStats(res.data));
+
+    // KPI DATA
+    fetch(`${API_BASE_URL}/dashboard/kpis`)
+      .then(res => res.json())
+      .then(data => setKpis(data));
+
+    // DEAL STATS
+    fetch(`${API_BASE_URL}/dashboard/deal-stats`)
+      .then(res => res.json())
+      .then(data => setStats(data));
+
   }, []);
 
-  if (!stats) return <p className="p-6">Loading analytics...</p>;
+  if (!kpis || !stats) {
+    return <p className="p-6">Loading dashboard...</p>;
+  }
 
-  const data = Object.entries(stats.stageMap).map(
+  const chartData = Object.entries(stats.stageMap).map(
     ([stage, value]) => ({ stage, value })
   );
 
@@ -31,7 +44,40 @@ export default function Dashboard() {
         CRM Analytics Dashboard
       </h1>
 
-      {/* Cards */}
+      {/* KPI WIDGETS */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+        <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
+          <p className="text-sm opacity-70">Customers</p>
+          <p className="text-2xl font-bold text-blue-600">
+            {kpis.totalCustomers}
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
+          <p className="text-sm opacity-70">Deals</p>
+          <p className="text-2xl font-bold text-purple-600">
+            {kpis.totalDeals}
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
+          <p className="text-sm opacity-70">Pipeline Value</p>
+          <p className="text-2xl font-bold text-orange-600">
+            ₹ {kpis.pipelineValue}
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
+          <p className="text-sm opacity-70">Won Revenue</p>
+          <p className="text-2xl font-bold text-green-600">
+            ₹ {kpis.wonRevenue}
+          </p>
+        </div>
+
+      </div>
+
+      {/* EXISTING ANALYTICS CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
@@ -57,10 +103,10 @@ export default function Dashboard() {
 
       </div>
 
-      {/* Chart */}
+      {/* CHART */}
       <div className="bg-white dark:bg-gray-800 p-4 rounded shadow h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data}>
+          <BarChart data={chartData}>
             <XAxis dataKey="stage" />
             <YAxis />
             <Tooltip />

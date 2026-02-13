@@ -35,6 +35,10 @@ export default function Pipeline() {
   const [editTitle, setEditTitle] = useState("");
   const [editValue, setEditValue] = useState("");
 
+  // ⭐ FILTER STATES
+  const [stageFilter, setStageFilter] = useState("");
+  const [customerFilter, setCustomerFilter] = useState("");
+
   const fetchData = async () => {
     const d = await getDeals();
     const c = await getCustomers();
@@ -60,7 +64,6 @@ export default function Pipeline() {
     });
 
     toast.success("Deal created");
-
     setTitle("");
     setValue("");
     setSelectedCustomer("");
@@ -94,7 +97,6 @@ export default function Pipeline() {
     });
 
     toast.success("Deal updated");
-
     setEditingId(null);
     fetchData();
   };
@@ -108,9 +110,15 @@ export default function Pipeline() {
     fetchData();
   };
 
+  // ⭐ FILTERED DATA
+  const filteredDeals = deals.filter(d =>
+    (!stageFilter || d.stage === stageFilter) &&
+    (!customerFilter || d.customer?._id === customerFilter)
+  );
+
   // EXPORT EXCEL
   const exportDealsExcel = () => {
-    const formatted = deals.map(d => ({
+    const formatted = filteredDeals.map(d => ({
       Title: d.title,
       Customer: d.customer?.name || "",
       Stage: d.stage,
@@ -119,7 +127,6 @@ export default function Pipeline() {
 
     const ws = XLSX.utils.json_to_sheet(formatted);
     const wb = XLSX.utils.book_new();
-
     XLSX.utils.book_append_sheet(wb, ws, "Deals");
 
     const buffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
@@ -132,7 +139,7 @@ export default function Pipeline() {
   const exportDealsPDF = () => {
     const doc = new jsPDF();
 
-    const rows = deals.map(d => [
+    const rows = filteredDeals.map(d => [
       d.title,
       d.customer?.name || "",
       d.stage,
@@ -150,6 +157,43 @@ export default function Pipeline() {
 
   return (
     <div className="p-6">
+
+      {/* FILTER UI */}
+      <div className="flex gap-2 mb-4 flex-wrap">
+
+        <select
+          value={stageFilter}
+          onChange={(e)=>setStageFilter(e.target.value)}
+          className="border p-2 rounded dark:bg-gray-700"
+        >
+          <option value="">All Stages</option>
+          {stages.map(s => (
+            <option key={s}>{s}</option>
+          ))}
+        </select>
+
+        <select
+          value={customerFilter}
+          onChange={(e)=>setCustomerFilter(e.target.value)}
+          className="border p-2 rounded dark:bg-gray-700"
+        >
+          <option value="">All Customers</option>
+          {customers.map(c => (
+            <option key={c._id} value={c._id}>{c.name}</option>
+          ))}
+        </select>
+
+        <button
+          onClick={()=>{
+            setStageFilter("");
+            setCustomerFilter("");
+          }}
+          className="bg-gray-500 text-white px-3 rounded"
+        >
+          Clear Filters
+        </button>
+
+      </div>
 
       {/* HEADER */}
       <div className="flex justify-between items-center mb-4">
@@ -197,9 +241,7 @@ export default function Pipeline() {
         >
           <option value="">Customer</option>
           {customers.map(c=>(
-            <option key={c._id} value={c._id}>
-              {c.name}
-            </option>
+            <option key={c._id} value={c._id}>{c.name}</option>
           ))}
         </select>
 
@@ -226,7 +268,7 @@ export default function Pipeline() {
                 >
                   <h2 className="font-bold mb-3 text-center">{stage}</h2>
 
-                  {deals
+                  {filteredDeals
                     .filter(d=>d.stage===stage)
                     .map((d,index)=>(
                       <Draggable

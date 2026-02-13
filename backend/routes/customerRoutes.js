@@ -1,11 +1,12 @@
 import express from "express";
 import { getCustomers, addCustomer, updateCustomer, deleteCustomer } from "../controllers/customerController.js";
+import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/", getCustomers);
-router.post("/", addCustomer);
-router.put("/:id", updateCustomer);
-router.delete("/:id", deleteCustomer);
+router.get("/", auth, getCustomers);
+router.post("/", auth, addCustomer);
+router.put("/:id", auth, updateCustomer);
+router.delete("/:id", auth, deleteCustomer);
 
 export default router;

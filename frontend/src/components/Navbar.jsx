@@ -26,7 +26,6 @@ export default function Navbar() {
     setResults(data);
   };
 
-  // Navigate on click
   const goTo = (path) => {
     setResults(null);
     setQuery("");
@@ -36,6 +35,13 @@ export default function Navbar() {
   const toggleDark = () => {
     document.documentElement.classList.toggle("dark");
     setDark(!dark);
+  };
+
+  // ⭐ LOGOUT
+  const logout = () => {
+    localStorage.removeItem("token");
+     sessionStorage.removeItem("token");
+    navigate("/login");
   };
 
   return (
@@ -57,11 +63,9 @@ export default function Navbar() {
           {results && (
             <div className="absolute z-50 bg-white dark:bg-gray-800 border mt-1 w-full rounded shadow max-h-80 overflow-auto">
 
-              {/* Customers */}
               {results.customers?.length > 0 && (
                 <div className="p-2">
                   <p className="font-bold text-sm mb-1">Customers</p>
-
                   {results.customers.map(c=>(
                     <p
                       key={c._id}
@@ -74,11 +78,9 @@ export default function Navbar() {
                 </div>
               )}
 
-              {/* Deals */}
               {results.deals?.length > 0 && (
                 <div className="p-2 border-t">
                   <p className="font-bold text-sm mb-1">Deals</p>
-
                   {results.deals.map(d=>(
                     <p
                       key={d._id}
@@ -91,11 +93,9 @@ export default function Navbar() {
                 </div>
               )}
 
-              {/* Payments */}
               {results.payments?.length > 0 && (
                 <div className="p-2 border-t">
                   <p className="font-bold text-sm mb-1">Payments</p>
-
                   {results.payments.map(p=>(
                     <p
                       key={p._id}
@@ -118,6 +118,14 @@ export default function Navbar() {
           className="p-2 rounded bg-gray-200 dark:bg-gray-700"
         >
           {dark ? <Sun size={18}/> : <Moon size={18}/>}
+        </button>
+
+        {/* LOGOUT */}
+        <button
+          onClick={logout}
+          className="bg-red-500 text-white px-3 py-1 rounded"
+        >
+          Logout
         </button>
 
       </div>

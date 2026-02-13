@@ -4,7 +4,18 @@ import { API_BASE_URL } from "../config/api";
 const API = axios.create({
   baseURL: API_BASE_URL,
 });
+API.interceptors.request.use((req)=>{
+  const token =
+    localStorage.getItem("token") ||
+    sessionStorage.getItem("token");
 
+  if(token)
+    req.headers.Authorization = `Bearer ${token}`;
+
+  return req;
+});
+
+export default API;
 export const getCustomers = () => API.get("/customers");
 export const addCustomer = (data) => API.post("/customers", data);
 export const deleteCustomer = (id) => API.delete(`/customers/${id}`);
@@ -38,3 +49,10 @@ export const updateDeal = (id,data)=>
 
 export const deleteDeal = (id)=>
   API.delete(`/deals/${id}`);
+
+// AUTH
+export const registerUser = (data) =>
+  API.post("/auth/register", data);
+
+export const loginUser = (data) =>
+  API.post("/auth/login", data);

@@ -10,6 +10,7 @@ import activityRoutes from "./routes/activityRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
 import dealRoutes from "./routes/dealRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -31,6 +32,7 @@ app.use("/api/activity", activityRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/deals", dealRoutes);
+app.use("/api/auth", authRoutes);
 
 
 const PORT = process.env.PORT || 5000;
